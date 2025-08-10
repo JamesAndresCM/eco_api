@@ -10,7 +10,7 @@ module Auth
         user.send_reset_password_instructions
         render json: { message: "Mail sent with instructions" }, status: :ok
       else
-        render json: { error: "Mail not found" }, status: :not_found
+        render json: { errors: "Mail not found" }, status: :not_found
       end
     end
 
