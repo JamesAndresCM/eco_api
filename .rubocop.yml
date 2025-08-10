@@ -1,0 +1,80 @@
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/RescueModifier:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/NegatedIf:
+  Enabled: false
+
+Style/NegatedWhile:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - 'config/initializers/*.rb'
+    - 'config/environments/*.rb'
+    - 'config/environment.rb'
+    - 'Rakefile'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'
+    - 'config/routes.rb'
+    - 'config/routes/*.rb'
+    - 'config/environments/*.rb'
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 150
+  Exclude:
+    - 'config/initializers/*.rb'
+
+Metrics/MethodLength:
+  Max: 30
+
+Layout/SpaceAroundOperators:
+  Enabled: false
+
+Layout/MultilineOperationIndentation:
+  Enabled: false
+
+Layout/MultilineBlockLayout:
+  Enabled: false
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
+
+Layout/SpaceInsideReferenceBrackets:
+  Enabled: false
+
+Layout/SpaceInsideBlockBraces:
+  Enabled: false
+
+Layout/SpaceBeforeBlockBraces:
+  Enabled: false
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.5.5
+  Exclude:
+    - 'bin/**/*'
+    - 'config.ru'
+    - 'db/schema.rb'
+    - 'config/puma.rb'
+    - 'config/boot.rb'
+
