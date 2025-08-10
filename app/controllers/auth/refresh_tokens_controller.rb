@@ -13,12 +13,7 @@ module Auth
       user = decode_refresh_token(refresh_token_params[:refresh_token])
       generate_refresh_token(user)
       sign_in(user)
-      render json: {
-        status: {
-          code: 200,
-          message: "Token refreshed successfully."
-        }
-      }, status: :ok
+      render json: { message: "Token refreshed successfully" }, status: :ok
     end
 
     private
@@ -37,13 +32,7 @@ module Auth
     end
 
     def handle_decode_error
-      render json: {
-        error: {
-          code: 401,
-          message: "Invalid refresh token.",
-          type: "token_invalid"
-        }
-      }, status: :unauthorized
+      render json: { errors: "Invalid refresh token" }, status: :unauthorized
     end
   end
 end

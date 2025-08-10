@@ -14,7 +14,7 @@ module Auth
         sign_in(user)
         render json: UserSerializer.new(user).serialized_json, status: :ok
       else
-        render json: { error: "Invalid email or password" }, status: :unauthorized
+        render json: { errors: "Invalid email or password" }, status: :unauthorized
       end
     end
 
@@ -33,10 +33,7 @@ module Auth
             BlacklistedToken.create!(jti: jti, user: current_user, exp: Time.at(jwt_payload["exp"]))
             sign_out(current_user)
 
-            render json: {
-              status: 200,
-              message: "Logged out successfully."
-            }, status: :ok
+            render json: { message: "Logged out successfully" }, status: :ok
             return
           end
         rescue JWT::DecodeError => e
@@ -46,10 +43,7 @@ module Auth
         end
       end
 
-      render json: {
-        status: 401,
-        message: "Couldn't find an active session."
-      }, status: :unauthorized
+      render json: { message: "Couldn't find an active session" }, status: :unauthorized
     end
 
     private

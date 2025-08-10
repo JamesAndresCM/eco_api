@@ -6,13 +6,7 @@ module Api
       class ProfileController < ApplicationController
         def me
           render json: {
-            status: {
-              code: 200,
-              message: "Hello #{current_user.name || current_user.email}, you are authenticated!",
-              data: {
-                user: UserSerializer.new(current_user).serializable_hash[:data][:attributes]
-              }
-            }
+            message: "Hello #{current_user.name || current_user.email}, you are authenticated!"
           }, status: :ok
         end
       end

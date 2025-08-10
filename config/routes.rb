@@ -34,5 +34,13 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  # Authenticated users go to their profile, others see API info
+  authenticated :user do
+    root "api/v1/users/profile#me", as: :authenticated_root
+  end
+
+  root "info#index"
+
+  # Catch-all route for undefined endpoints
+  # match "*path", to: "application#render_not_found", via: :all
 end
