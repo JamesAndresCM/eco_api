@@ -10,18 +10,17 @@ class User < ApplicationRecord
   validates :name, presence: true
 
   def self.decode_refresh_token(token)
-    DecodeRefreshTokenService.call(token)
+    Auth::DecodeRefreshTokenService.call(token)
   end
 
   def generate_refresh_token
-    GenerateRefreshTokenService.call(self)
+    Auth::GenerateRefreshTokenService.call(self)
   end
 
-  def jwt_payload
+  def jwt_payload(version: :v1)
     {
       "sub" => id,
-      "scp" => "api_v1_user" # tu scope personalizado
-      # Puedes agregar más claims si quieres
+      "scp" => "api_#{version}_user"
     }
   end
 end
