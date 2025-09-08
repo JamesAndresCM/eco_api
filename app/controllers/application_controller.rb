@@ -3,7 +3,7 @@
 class ApplicationController < ActionController::API
   include HasDeviseWhitelist
 
-  before_action :authenticate_user!
+  before_action :authenticate_user!, unless: :jobs_dashboard?
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
   rescue_from ActionController::ParameterMissing, with: :render_parameter_missing
 
@@ -25,5 +25,11 @@ class ApplicationController < ActionController::API
         type: "not_found"
       }
     }, status: :not_found
+  end
+
+  private
+
+  def jobs_dashboard?
+    request.path.start_with?("/jobs")
   end
 end
