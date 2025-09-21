@@ -17,14 +17,6 @@ module Api
       def create
         CreateOrderJob.perform_later(current_user.id, order_params.to_h)
         render json: { message: "Order is being processed" }, status: :ok
-        #         order = Orders::CreateOrderService.call(user: current_user, items: order_params[:items])
-        #         render json: { data: order_json(order) }, status: :created
-        #       rescue Orders::CreateOrderService::ProductNotFoundError,
-        #              Orders::CreateOrderService::InsufficientStockError,
-        #              ArgumentError => e
-        #         render json: { error: e.message }, status: :unprocessable_entity
-        #       rescue Orders::CreateOrderService::OrderCreationError => e
-        #         render json: { error: e.message }, status: :internal_server_error
       end
 
       private

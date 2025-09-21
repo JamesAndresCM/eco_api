@@ -1,0 +1,32 @@
+ORDER CONFIRMATION
+
+Hi <%= @user.name || @user.email.split("@").first.capitalize %>,
+
+Great news! Your order has been successfully created and is being processed.
+
+ORDER DETAILS
+==============
+
+Order ID: #<%= @order.id %>
+Status: <%= @order.status.humanize %>
+Order Date: <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+
+ITEMS ORDERED
+=============
+
+<% @order_items.each do |item| %>
+<%= item.product.name %>
+Quantity: <%= item.quantity %>
+Price: $<%= number_to_currency(item.unit_price, unit: "") %>
+Subtotal: $<%= number_to_currency(item.unit_price * item.quantity, unit: "") %>
+---
+<% end %>
+
+Total Items: <%= @total_items %>
+TOTAL: $<%= number_to_currency(@order.total_amount, unit: "") %>
+
+We'll keep you updated on your order status. You can track your order by logging into your account.
+
+Thank you for your business!
+
+The Eco Team
