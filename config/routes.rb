@@ -23,6 +23,12 @@ Rails.application.routes.draw do
       namespace :users do
         get "me", to: "profile#me"
       end
+      namespace :payments do
+        get "webpay-plus/create", to: "webpay_plus#create", as: :webpay_plus_create
+        match "webpay-plus/commit",  to: "webpay_plus#commit",  via: %i[get post], as: :webpay_plus_commit
+        get   "webpay-plus/refund",  to: "webpay_plus#refund",  as: :webpay_plus_refund
+        get   "webpay-plus/status",  to: "webpay_plus#status",  as: :webpay_plus_status
+      end
       resources :products, only: %i[index show]
       resources :orders,   only: %i[index show create]
     end
