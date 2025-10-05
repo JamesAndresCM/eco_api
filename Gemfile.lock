@@ -382,6 +382,8 @@ GEM
     thruster (0.1.15-x86_64-darwin)
     thruster (0.1.15-x86_64-linux)
     timeout (0.4.3)
+    transbank-sdk (5.1.0)
+      json (~> 2.6)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
@@ -443,6 +445,7 @@ DEPENDENCIES
   solid_cache
   solid_queue
   thruster
+  transbank-sdk
   tzinfo-data
 
 BUNDLED WITH

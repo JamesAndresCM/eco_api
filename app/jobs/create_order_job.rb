@@ -9,8 +9,30 @@ class CreateOrderJob < ApplicationJob
   retry_on StandardError, wait: :polynomially_longer, attempts: 2
 
   def perform(user_id, order_params)
+    @user_id = user_id
+    return unless User.find_by(id: @user_id).present?
+
+    response_data = create_order(order_params)
+    @order_id = response_data["order_id"]
+    @total_amount = response_data["total"].to_i
+
+    @payment = create_pending_payment
+    create_webpay_transaction
+
+    Rails.logger.info("Order #{@order_id} processed in Go service, payment initialized")
+  rescue RestClient::ExceptionWithResponse => e
+    Rails.logger.error("Go service error: #{e.response}")
+    raise
+  rescue StandardError => e
+    Rails.logger.error("Error processing order: #{e.message}")
+    raise
+  end
+
+  private
+
+  def create_order(order_params)
     payload = {
-      user_id: user_id,
+      user_id: @user_id,
       items: order_params["items"]
     }
 
@@ -20,28 +42,33 @@ class CreateOrderJob < ApplicationJob
       { content_type: :json, accept: :json }
     )
 
-    if response.code == 200
-      response_data = JSON.parse(response.body)
-      order_id = response_data["order_id"]
-      if order_id.present?
-        # https://proyecto-ejemplo-ruby.transbankdevelopers.cl/webpay-plus/create
-        # TODO: integrate with payment gateway
-        # when order is created successfully, call to external payment service like as transbank
-        # transaction = TransbankPayment.process_payment(order_id)
-        # if the transaction is successful, send data to elixir notification service with rest client
-        # or kafka producer
-        # RestClient.post("http://elixir-service/notify", { order_id: order_id, user_id: user_id }.to_json, { content_type: :json, accept: :json })
-        # then elixir service will receive order data, send socket notification to user through phoenix channels to
-        # nestjs and render form to make payment with transbank sdk
-        # OrderConfirmationEmailJob.perform_later(order_id: order_id)
-        Rails.logger.info("Order #{order_id} processed in Go service, email job enqueued")
-      end
-    end
-  rescue RestClient::ExceptionWithResponse => e
-    Rails.logger.error("Go service error: #{e.response}")
-    raise
-  rescue StandardError => e
-    Rails.logger.error("Error calling Go service: #{e.message}")
-    raise
+    raise "Invalid response from Go service" unless response.code == 200
+
+    JSON.parse(response.body)
+  end
+
+  def create_pending_payment
+    Payment.create!(
+      order_id: @order_id,
+      user_id: @user_id,
+      status: "pending",
+      amount: @total_amount
+    )
+  end
+
+  def create_webpay_transaction
+    tx = WebpayClient.transaction
+
+    create_tx = tx.create(
+      @order_id.to_s,
+      "user_#{@user_id}",
+      @total_amount,
+      Rails.application.routes.url_helpers.api_v1_payments_webpay_plus_commit_url
+    )
+
+    @payment.update!(
+      transaction_token: create_tx["token"],
+      transaction_data: create_tx.to_json
+    )
   end
 end
