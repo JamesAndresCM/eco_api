@@ -105,6 +105,8 @@ GEM
     devise-jwt (0.12.1)
       devise (~> 4.0)
       warden-jwt_auth (~> 0.10)
+    digest-crc (0.7.0)
+      rake (>= 12.0.0, < 14.0.0)
     domain_name (0.6.20240107)
     dotenv (3.1.8)
     drb (2.2.3)
@@ -347,6 +349,8 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
+    ruby-kafka (1.5.0)
+      digest-crc
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
     solid_cable (3.0.11)
@@ -441,6 +445,7 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rails
   rubocop-rails-omakase
+  ruby-kafka
   solid_cable
   solid_cache
   solid_queue
