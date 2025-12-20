@@ -13,13 +13,15 @@ module Kafka
         requested_at: Time.current.iso8601
       }
 
-      KAFKA.deliver_message(
-        payload.to_json,
+      Karafka.producer.produce_sync(
         topic: TOPIC,
+        payload: payload.to_json,
         key: user_id.to_s
       )
-    rescue ::Kafka::Error => e
-      Rails.logger.error("Kafka publish failed: #{e.message}")
+
+      Rails.logger.info("📤 Order event published to #{TOPIC} for user #{user_id}")
+    rescue StandardError => e
+      Rails.logger.error("Karafka publish failed: #{e.message}")
       raise PublishError, e.message
     end
   end
