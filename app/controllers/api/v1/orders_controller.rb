@@ -4,7 +4,7 @@ module Api
   module V1
     class OrdersController < ApplicationController
       def index
-        orders = current_user.orders.includes(order_items: :product).order(created_at: :desc)
+        orders = current_user.orders.joins(items: :product).order(created_at: :desc)
         collection, meta = PaginationService.new(resource: orders, page: params[:page], per_page: params[:per_page]).paginate
         render json: OrderSerializer.new(collection, field_opts(meta: meta)).serializable_hash, status: :ok
       end
@@ -32,7 +32,8 @@ module Api
             order: %i[id status total_price total_items created_at updated_at items],
             order_item: %i[id product_id quantity price]
           },
-          include: %i[items.product]
+          include: %i[items.product],
+          params: { total_quantity: current_user.orders.total_quantity }
         }.merge(attrs)
       end
     end
