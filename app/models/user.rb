@@ -8,6 +8,7 @@ class User < ApplicationRecord
          :jwt_authenticatable,
          jwt_revocation_strategy: BlacklistedToken
   validates :name, presence: true
+  has_many :orders
 
   def self.decode_refresh_token(token)
     Auth::DecodeRefreshTokenService.call(token)
