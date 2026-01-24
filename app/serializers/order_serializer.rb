@@ -7,8 +7,8 @@ class OrderSerializer < BaseSerializer
     object.total_amount.to_f
   end
 
-  attribute :total_items do |object, _params|
-    object.items.sum(:quantity)
+  attribute :total_items do |object, params|
+    params.dig(:total_quantity, object.id) || 0
   end
 
   has_many :items, serializer: ItemSerializer
