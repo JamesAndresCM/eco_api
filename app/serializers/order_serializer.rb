@@ -11,6 +11,10 @@ class OrderSerializer < BaseSerializer
     params.dig(:total_quantity, object.id) || 0
   end
 
+  attribute :payment_id do |object, params|
+    params.dig(:payment_id, object.id)
+  end
+
   has_many :items, serializer: ItemSerializer
   build_timestamps
 end

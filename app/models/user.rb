@@ -9,6 +9,7 @@ class User < ApplicationRecord
          jwt_revocation_strategy: BlacklistedToken
   validates :name, presence: true
   has_many :orders
+  has_many :payments
 
   def self.decode_refresh_token(token)
     Auth::DecodeRefreshTokenService.call(token)
