@@ -7,7 +7,7 @@ module Api
         skip_before_action :authenticate_user!, only: %i[commit]
 
         def retry
-          payment = Payment.find_by!(id: params[:id])
+          payment = Payment.find_by!(id: params[:id], user_id: current_user.id)
 
           payment.with_lock do
             # Only allow retry for failed payments
