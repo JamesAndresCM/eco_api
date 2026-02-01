@@ -83,10 +83,9 @@ class CreateOrderJob < ApplicationJob
   end
 
   def create_pending_payment
-    Payment.create!(
+    ::Payments::IdempotentPaymentService.call(
       order_id: @order_id,
       user_id: @user_id,
-      status: "pending",
       amount: @total_amount
     )
   end
