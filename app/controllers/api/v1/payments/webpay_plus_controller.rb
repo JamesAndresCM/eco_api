@@ -4,7 +4,7 @@ module Api
   module V1
     module Payments
       class WebpayPlusController < ApplicationController
-        skip_before_action :authenticate_user!, only: %i[commit retry]
+        skip_before_action :authenticate_user!, only: %i[commit]
 
         def retry
           payment = Payment.find_by!(id: params[:id])
