@@ -11,7 +11,15 @@ module Payments
     end
 
     def call
+      # Quick check: avoid entering transaction if already paid
+      return if payment.status_paid?
+
       ActiveRecord::Base.transaction do
+        # Acquire pessimistic lock to prevent concurrent processing
+        payment.lock!
+        # Double-check after acquiring lock (state might have changed)
+        return if payment.status_paid?
+
         order = payment.order
         decrement_stock!(order)
         payment.update!(
@@ -29,8 +37,9 @@ module Payments
     attr_reader :payment, :response
 
     def decrement_stock!(order)
+      products = Product.lock.where(id: order.items.pluck(:product_id)).index_by(&:id)
       order.items.includes(:product).each do |item|
-        product = Product.lock.find(item.product_id)
+        product = products[item.product_id]
         if product.stock_quantity < item.quantity
           raise InsufficientStockError, "Insufficient stock for product #{product.id}"
         end

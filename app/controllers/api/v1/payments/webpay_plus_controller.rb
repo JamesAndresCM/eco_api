@@ -9,19 +9,29 @@ module Api
         def commit
           token = params[:token_ws]
 
-          tx = WebpayClient.transaction
-          response = tx.commit(token)
-          response.symbolize_keys!
-
+          # Find payment first
           payment = Payment.find_by!(transaction_token: token)
-          return render(json: { message: "Payment already processed" }, status: :ok) if payment.status.in?(%w[paid failed])
 
-          if response[:status] == "AUTHORIZED"
-            ::Payments::DecrementStockService.call(payment: payment, response: response)
-            render json: { message: "Payment successful!" }, status: :ok
-          else
-            payment.update!(status: :failed, transaction_data: response)
-            render json: { message: "Payment not authorized" }, status: :unprocessable_entity
+          # Acquire lock to prevent concurrent processing
+          payment.with_lock do
+            # Idempotency: return early if already processed
+            if payment.status.in?(%w[paid failed])
+              Rails.logger.info("Payment #{payment.id} already processed with status: #{payment.status}")
+              return render(json: { message: "Payment already processed" }, status: :ok)
+            end
+
+            # Only call Webpay API if payment is still pending
+            tx = WebpayClient.transaction
+            response = tx.commit(token)
+            response.symbolize_keys!
+
+            if response[:status] == "AUTHORIZED"
+              ::Payments::DecrementStockService.call(payment: payment, response: response)
+              render json: { message: "Payment successful!" }, status: :ok
+            else
+              payment.update!(status: :failed, transaction_data: response)
+              render json: { message: "Payment not authorized" }, status: :unprocessable_entity
+            end
           end
         rescue ::Payments::DecrementStockService::InsufficientStockError => e
           Rails.logger.warn("Commit aborted: #{e.message}")
