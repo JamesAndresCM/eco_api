@@ -22,14 +22,31 @@ class OrdersProcessedConsumer < ApplicationConsumer
 
     Rails.logger.info("Processing successful order #{@order_id} for user #{@user_id}")
 
-    @payment = Payment.create!(
+    # IdempotentPaymentService automatically generates the idempotency key
+    # based on order_id and user_id to prevent duplicate payments
+    @payment = ::Payments::IdempotentPaymentService.call(
       order_id: @order_id,
       user_id: @user_id,
-      status: "pending",
       amount: @total
     )
 
-    create_webpay_transaction
+    # Validate amount hasn't changed (detect order modifications)
+    if @payment.amount != @total
+      Rails.logger.error("Amount mismatch for payment #{@payment.id}: expected #{@payment.amount}, got #{@total}")
+      raise "Payment amount mismatch"
+    end
+
+    # Return early if payment is already completed
+    unless @payment.status_pending?
+      Rails.logger.info("Payment #{@payment.id} already in final status: #{@payment.status}")
+      return
+    end
+
+    # Create Webpay transaction if not exists
+    create_webpay_transaction if @payment.transaction_token.blank?
+
+    # Always try to notify if payment is still pending
+    # The notification endpoint should be idempotent
     notify_payment
   end
 
