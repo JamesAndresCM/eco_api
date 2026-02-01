@@ -36,7 +36,7 @@ module Payments
     attr_reader :idempotency_key, :order_id, :user_id, :amount
 
     def generate_idempotency_key
-      "payment:order:#{order_id}:user:#{user_id}"
+      Digest::SHA256.hexdigest("payment:order:#{order_id}:user:#{user_id}")
     end
 
     def create_payment_safely
