@@ -55,6 +55,7 @@ end
 gem "devise", "~> 4.9"
 gem "devise-jwt"
 gem "jsonapi-serializer"
+gem "karafka", ">= 2.4.0"
 gem "mission_control-jobs"
 gem "oj"
 gem "propshaft"
