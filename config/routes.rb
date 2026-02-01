@@ -25,7 +25,8 @@ Rails.application.routes.draw do
       end
       namespace :payments do
         get "webpay-plus/create", to: "webpay_plus#create", as: :webpay_plus_create
-        match "webpay-plus/commit",  to: "webpay_plus#commit",  via: %i[get post], as: :webpay_plus_commit
+        match "webpay-plus/commit", to: "webpay_plus#commit",  via: %i[get post], as: :webpay_plus_commit
+        post "webpay-plus/:id/retry", to: "webpay_plus#retry", as: :webpay_plus_retry
         get   "webpay-plus/refund",  to: "webpay_plus#refund",  as: :webpay_plus_refund
         get   "webpay-plus/status",  to: "webpay_plus#status",  as: :webpay_plus_status
       end
@@ -50,6 +51,9 @@ Rails.application.routes.draw do
 
   root "info#index"
 
+  # Catch-all for non-GET requests to root
+  match "/", to: "info#index", via: %i[post put patch delete]
+
   # Catch-all route for undefined endpoints
-  # match "*path", to: "application#render_not_found", via: :all
+  match "*path", to: "application#render_not_found", via: :all
 end
