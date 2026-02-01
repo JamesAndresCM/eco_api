@@ -5,5 +5,6 @@ class Payment < ApplicationRecord
   belongs_to :user
   enum :status, { pending: "pending", paid: "paid", failed: "failed" }, prefix: true
   validates :amount, presence: true
+  validates :idempotency_key, presence: true, uniqueness: true
   validates :transaction_token, uniqueness: true, allow_nil: true
 end
